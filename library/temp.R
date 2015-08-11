@@ -91,7 +91,7 @@ for (i in 1:length(dat_in_list)){
 # write out compound ids
 temp = dat_in_list[[1]]
 temp = temp[, match(compounds_var, colnames(temp))]
-write.csv(temp, file_out_compounds_ids, row.names=F, quote=T)
+write.csv(temp, file_out_compounds_ids, row.names=FALSE, quote=TRUE)
 
 # write out drug doses
 temp <- dat_in_list[[1]]
@@ -101,7 +101,7 @@ if (any(!same_dose))
     warning('doses are not the same across cell lines for every line')
 temp = dat_in_list[[1]]
 temp = temp[, match(doses_var, colnames(temp))]
-write.csv(temp, file_out_doses, row.names=F, quote=T)
+write.csv(temp, file_out_doses, row.names=FALSE, quote=FALSE)
 
 # write out response (normalized percentage of viable cells) - multiple files or ?RData
 for (i in 1:length(dat_in_list)){
@@ -109,18 +109,18 @@ for (i in 1:length(dat_in_list)){
     temp = temp[ ,match(response_var, colnames(temp))]
     temp = data.frame(SID = rows_in_all, temp)
     write.csv(temp, file.path(dir_out_response, paste(sample_id[i], 'response.csv', sep='_')),
-        row.names=F, quote=T)
+        row.names=FALSE, quote=TRUE)
 }
 
-# write out drc (dose response curve fit and sensitivity parameters)
+# write out drc (dose response curve fit and sensitivity estimates)
 for (i in 1:length(dat_in_list)){
     temp <- dat_in_list[[i]]
     max_dose <- temp[ ,replace_ac50]
     temp = temp[ ,match(drc_var, colnames(temp))]
     AC50 <- calc_ac50(temp[,log_ac50])
-    iAC50 <- ifelse(temp[ ,curve_class2]==is_bad & is.na(temp[ ,log_ac50]), max_dose, AC50)
-    iLAC50 = calc_lac50(iAC50, negative=TRUE)
-    temp = data.frame(SID = rows_in_all, temp, iLAC50, AC50, iAC50)
+    iAC50 <- ifelse(temp[ ,curve_class2] == is_bad & is.na(temp[ ,log_ac50]), max_dose, AC50)
+    iLAC50 <- calc_lac50(iAC50, negative=TRUE)
+    temp <- data.frame(SID = rows_in_all, temp, iLAC50, AC50, iAC50)
     write.csv(temp, file.path(dir_out_drc, paste(sample_id[i], 'drc.csv', sep='_')),
-        row.names=F, quote=T)
+        row.names = FALSE, quote=TRUE)
 }
