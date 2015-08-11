@@ -11,7 +11,7 @@
 # The steps performed are:
 #   1. retains compounds tested across all samples
 #   2. calculates AC50 (back from log AC50); adds variable named AC50
-#   3. assigns highest dose to missing AC50 when class curve2 equals 4; adds variable named iAC50
+#   3. assigns highest dose to missing AC50 if class curve2 equals 4; adds variable named iAC50
 #   4. calculates negative log with iAC50: adds variable named iLAC50
 #   5. splits data and writes out files with different type of data:
 #      - compound ids/names to one file (metadata)
@@ -22,6 +22,7 @@
 #        and include unique SAMPLE_ID from the raw/metadata/samples_ids_drug_response.csv file
 # 
 #################################################################################################
+
 
 
 #--> HARD CODED: paths
@@ -49,6 +50,7 @@ file_out_compounds_ids <- file.path(dir_meta_out, 'compounds_ids_drug_response.c
 file_out_doses <- file.path(dir_meta_out, 'doses_drug_response.csv')
 
 
+
 #--> HARD CODED: options/parameters
 
 #. variable name for unique drug id
@@ -63,7 +65,7 @@ varResponse <- paste('DATA', 0:10, sep='')
 #. settings for assigning AC50 if missing
 kBadCurve <- 4
 curveClass2 <- 'CCLASS2'
-subAC50 <- 'C10'
+subDose <- 'C10'
 logAC50 <- 'LAC50'
 
 
@@ -83,6 +85,8 @@ if (negative){
     return(log10(x/10^6))
   }
 }
+
+
 
 #-->RUN:
 
@@ -110,18 +114,18 @@ for (i in 1:length(datList)){
 #. write out compound ids/name to one file in processed/metadata directory
 temp <- datList[[1]]
 temp <- temp[, match(varCompound, colnames(temp))]
-write.csv(temp, file_out_compounds_ids, row.names=FALSE, quote=TRUE)
+write.csv(temp, file_out_compounds_ids, row.names = FALSE, quote = TRUE)
 
 #. write out drug doses to one file in processed/metadata directory,  
-#.. assuming doses are the sameacross all samples for a particular drug
+#.. assuming doses are the same across all samples for a particular drug
 temp <- datList[[1]]
 same_dose <- sapply(datList, function(x) all(x[,match(varDose, colnames(x))] == 
   temp[ ,match(varDose, colnames(x))]))
 if (any(!same_dose))
-  warning('compound doses are not the same across all treated samples')
+  stop('compound doses are not the same across all treated samples')
 temp <- datList[[1]]
 temp <- temp[, match(varDose, colnames(temp))]
-write.csv(temp, file_out_doses, row.names=FALSE, quote=FALSE)
+write.csv(temp, file_out_doses, row.names = FALSE, quote = FALSE)
 
 #. write out response (normalized percentage of viable cells)
 #.. saves multiple files (single file per sample)
@@ -131,7 +135,7 @@ for (i in 1:length(datList)){
   temp <- temp[ ,match(varResponse, colnames(temp))]
   temp <- data.frame(SID = rowsAll, temp)
   write.csv(temp, file.path(dir_out_response, paste(sampleUID[i], 'response.csv', sep='_')),
-    row.names=FALSE, quote=TRUE)
+    row.names = FALSE, quote = TRUE)
 }
 
 #. write out drc (dose response curve fit and sensitivity estimates)
@@ -139,12 +143,12 @@ for (i in 1:length(datList)){
 #.. in processed/drug_response/drc directory
 for (i in 1:length(datList)){
   temp <- datList[[i]]
-  subDose <- temp[ ,subAC50]
+  subAC50 <- temp[ ,subDose]
   temp <- temp[ ,match(varDRC, colnames(temp))]
   AC50 <- CalculateAC50(temp[,logAC50])
-  iAC50 <- ifelse(temp[ ,curveClass2] == kBadCurve & is.na(temp[ ,logAC50]), subDose, AC50)
-  iLAC50 <- CalculateLogAC50(iAC50, negative=TRUE)
+  iAC50 <- ifelse(temp[ ,curveClass2] == kBadCurve & is.na(temp[ ,logAC50]), subAC50, AC50)
+  iLAC50 <- CalculateLogAC50(iAC50, negative = TRUE)
   temp <- data.frame(SID = rowsAll, temp, iLAC50, AC50, iAC50)
   write.csv(temp, file.path(dir_out_drc, paste(sampleUID[i], 'drc.csv', sep='_')),
-    row.names = FALSE, quote=TRUE)
+    row.names = FALSE, quote = TRUE)
 }
