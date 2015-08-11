@@ -37,14 +37,14 @@ row_var <- 'SID'
 #. to split into data types
 compounds_var <- c('SID', 'readout', 'name', 'target', 'smi')
 drc_var <- c('NPT', 'CCLASS', 'CCLASS2', 'HILL', 'INF', 'ZERO', 'MAXR', 'TAUC', 'FAUC', 'LAC50')
-doses_var = paste('C', 0:10, sep='')
-response_var = paste('DATA', 0:10, sep='')
+doses_var <- paste('C', 0:10, sep='')
+response_var <- paste('DATA', 0:10, sep='')
 
 #. vars to assign AC50
-is_bad = 4
-curve_class2 = 'CCLASS2'
-replace_ac50 = 'C10'
-log_ac50 = 'LAC50'
+is_bad <- 4
+curve_class2 <- 'CCLASS2'
+replace_ac50 <- 'C10'
+log_ac50 <- 'LAC50'
 
 
 # FUNCTIONS:
@@ -89,8 +89,8 @@ for (i in 1:length(dat_in_list)){
 }
 
 # write out compound ids
-temp = dat_in_list[[1]]
-temp = temp[, match(compounds_var, colnames(temp))]
+temp <- dat_in_list[[1]]
+temp <- temp[, match(compounds_var, colnames(temp))]
 write.csv(temp, file_out_compounds_ids, row.names=FALSE, quote=TRUE)
 
 # write out drug doses
@@ -99,15 +99,15 @@ same_dose <- sapply(dat_in_list, function(x) all(x[,match(doses_var, colnames(x)
     temp[ ,match(doses_var, colnames(x))]))
 if (any(!same_dose))
     warning('doses are not the same across cell lines for every line')
-temp = dat_in_list[[1]]
-temp = temp[, match(doses_var, colnames(temp))]
+temp <- dat_in_list[[1]]
+temp <- temp[, match(doses_var, colnames(temp))]
 write.csv(temp, file_out_doses, row.names=FALSE, quote=FALSE)
 
 # write out response (normalized percentage of viable cells) - multiple files or ?RData
 for (i in 1:length(dat_in_list)){
-    temp = dat_in_list[[i]]
-    temp = temp[ ,match(response_var, colnames(temp))]
-    temp = data.frame(SID = rows_in_all, temp)
+    temp <- dat_in_list[[i]]
+    temp <- temp[ ,match(response_var, colnames(temp))]
+    temp <- data.frame(SID = rows_in_all, temp)
     write.csv(temp, file.path(dir_out_response, paste(sample_id[i], 'response.csv', sep='_')),
         row.names=FALSE, quote=TRUE)
 }
@@ -116,10 +116,10 @@ for (i in 1:length(dat_in_list)){
 for (i in 1:length(dat_in_list)){
     temp <- dat_in_list[[i]]
     max_dose <- temp[ ,replace_ac50]
-    temp = temp[ ,match(drc_var, colnames(temp))]
-    AC50 <- calc_ac50(temp[,log_ac50])
-    iAC50 <- ifelse(temp[ ,curve_class2] == is_bad & is.na(temp[ ,log_ac50]), max_dose, AC50)
-    iLAC50 <- calc_lac50(iAC50, negative=TRUE)
+    temp <- temp[ ,match(drc_var, colnames(temp))]
+        AC50 <- calc_ac50(temp[,log_ac50])
+        iAC50 <- ifelse(temp[ ,curve_class2] == is_bad & is.na(temp[ ,log_ac50]), max_dose, AC50)
+        iLAC50 <- calc_lac50(iAC50, negative=TRUE)
     temp <- data.frame(SID = rows_in_all, temp, iLAC50, AC50, iAC50)
     write.csv(temp, file.path(dir_out_drc, paste(sample_id[i], 'drc.csv', sep='_')),
         row.names = FALSE, quote=TRUE)
