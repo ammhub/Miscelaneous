@@ -15,11 +15,21 @@ setwd('/data/michaloa/S3')
 
 #. to output
     
-    dir_out <- 'data/processed/drug_response';  if (!dir.exists(dir_out))  dir.create(dir_out, recursive = T)
-    dir_out_drc <- 'data/processed/drug_response/drc';  if (!dir.exists(dir_out_drc))  dir.create(dir_out_drc, recursive = T)
-    dir_out_response <- 'data/processed/drug_response/response';  if (!dir.exists(dir_out_response))  dir.create(dir_out_response, recursive = T)
-    dir_out_dose <- 'data/processed/drug_response/dose';  if (!dir.exists(dir_out_dose))  dir.create(dir_out_dose, recursive = T)
-    dir_meta_out <- 'data/processed/metadata'; if (!dir.exists(dir_meta_out))  dir.create(dir_meta_out, recursive = T)
+    dir_out <- 'data/processed/drug_response'
+        if (!dir.exists(dir_out))  dir.create(dir_out, recursive = T)
+    
+    dir_out_drc <- 'data/processed/drug_response/drc'
+        if (!dir.exists(dir_out_drc))  dir.create(dir_out_drc, recursive = T)
+    
+    dir_out_response <- 'data/processed/drug_response/response'
+        if (!dir.exists(dir_out_response))  dir.create(dir_out_response, recursive = T)
+    
+    dir_out_dose <- 'data/processed/drug_response/dose'
+        if (!dir.exists(dir_out_dose))  dir.create(dir_out_dose, recursive = T)
+    
+    dir_meta_out <- 'data/processed/metadata'
+        if (!dir.exists(dir_meta_out))  dir.create(dir_meta_out, recursive = T)
+    
     file_out_compounds_ids <- file.path(dir_meta_out, 'compounds_ids_drug_response.csv')
     
 
