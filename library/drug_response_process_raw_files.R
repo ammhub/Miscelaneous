@@ -24,26 +24,25 @@
 #################################################################################################
 
 
-
 #--> HARD CODED: paths
 
 #. input 
-dir_in <- 'datasets/raw/drug_response'
-dir_meta_in <- 'datasets/raw/metadata/'
+dir_in <- 'data/datasets/raw/drug_response'
+dir_meta_in <- 'data/datasets/raw/metadata'
     
 file_in_samples_ids <- file.path(dir_meta_in, 'samples_ids_drug_response.csv')
 
 #. output
-dir_out <- 'datasets/processed/drug_response'
+dir_out <- 'data/datasets/processed/drug_response'
 if (!dir.exists(dir_out))  dir.create(dir_out, recursive = T)
     
-dir_out_drc <- 'datasets/processed/drug_response/drc'
+dir_out_drc <- 'data/datasets/processed/drug_response/drc'
 if (!dir.exists(dir_out_drc))  dir.create(dir_out_drc, recursive = T)
     
-dir_out_response <- 'datasets/processed/drug_response/response'
+dir_out_response <- 'data/datasets/processed/drug_response/response'
 if (!dir.exists(dir_out_response))  dir.create(dir_out_response, recursive = T)
     
-dir_meta_out <- 'datasets/processed/metadata'
+dir_meta_out <- 'data/datasets/processed/metadata'
 if (!dir.exists(dir_meta_out))  dir.create(dir_meta_out, recursive = T)
     
 file_out_compounds_ids <- file.path(dir_meta_out, 'compounds_ids_drug_response.csv')
@@ -87,7 +86,6 @@ if (negative){
 }
 
 
-
 #-->RUN:
 
 #. read sample ids and files
@@ -124,7 +122,7 @@ same_dose <- sapply(datList, function(x) all(x[,match(varDose, colnames(x))] ==
 if (any(!same_dose))
   stop('compound doses are not the same across all treated samples')
 temp <- datList[[1]]
-temp <- temp[, match(varDose, colnames(temp))]
+temp <- temp[, match(c(rowUID, varDose), colnames(temp))]
 write.csv(temp, file_out_doses, row.names = FALSE, quote = FALSE)
 
 #. write out response (normalized percentage of viable cells)
@@ -132,9 +130,8 @@ write.csv(temp, file_out_doses, row.names = FALSE, quote = FALSE)
 #.. in processed/drug_response/response directory
 for (i in 1:length(datList)){
   temp <- datList[[i]]
-  temp <- temp[ ,match(varResponse, colnames(temp))]
-  temp <- data.frame(SID = rowsAll, temp)
-  write.csv(temp, file.path(dir_out_response, paste(sampleUID[i], 'response.csv', sep='_')),
+  temp <- temp[ ,match(c(rowUID, varResponse), colnames(temp))]
+    write.csv(temp, file.path(dir_out_response, paste(sampleUID[i], 'response.csv', sep='_')),
     row.names = FALSE, quote = TRUE)
 }
 
@@ -144,11 +141,11 @@ for (i in 1:length(datList)){
 for (i in 1:length(datList)){
   temp <- datList[[i]]
   subAC50 <- temp[ ,subDose]
-  temp <- temp[ ,match(varDRC, colnames(temp))]
+  temp <- temp[ ,match(c(rowUID, varDRC), colnames(temp))]
   AC50 <- CalculateAC50(temp[,logAC50])
   iAC50 <- ifelse(temp[ ,curveClass2] == kBadCurve & is.na(temp[ ,logAC50]), subAC50, AC50)
   iLAC50 <- CalculateLogAC50(iAC50, negative = TRUE)
-  temp <- data.frame(SID = rowsAll, temp, iLAC50, AC50, iAC50)
+  temp <- data.frame(temp, iLAC50, AC50, iAC50)
   write.csv(temp, file.path(dir_out_drc, paste(sampleUID[i], 'drc.csv', sep='_')),
     row.names = FALSE, quote = TRUE)
 }
