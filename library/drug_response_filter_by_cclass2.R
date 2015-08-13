@@ -18,17 +18,16 @@
 #################################################################################################
 
 
-
 #--> HARD CODED: paths
 
 #. input 
-dir_in <- 'datasets/processed/drug_response/drc'
-dir_meta_in <- 'datasets/processed/metadata/'
+dir_in <- 'data/datasets/processed/drug_response/drc'
+dir_meta_in <- 'data/datasets/processed/metadata'
 
 #. output
-dir_out <- 'datasets/filtered/drug_response'
+dir_out <- 'data/datasets/filtered/drug_response'
 if (!dir.exists(dir_out))  dir.create(dir_out, recursive = T)
-dir_meta_out <- 'datasets/filtered/metadata'
+dir_meta_out <- 'data/datasets/filtered/metadata'
 if (!dir.exists(dir_meta_out))  dir.create(dir_meta_out, recursive = T)
     
 #--> HARD CODED: variable names and options
@@ -39,7 +38,6 @@ estimates <- c('iLAC50','CCLASS2')
 rowUID <- 'SID'
 
 
-
 #--> FUNCTIONS
 SingleMatrix <- function(x.list, variable, row.ids, col.ids){
   out <- sapply(x.list, function(x) return(x[,variable]))
@@ -48,7 +46,6 @@ SingleMatrix <- function(x.list, variable, row.ids, col.ids){
 }
 GetSampleNames <- function(x.names, break.by = '_', k = 2)
   sapply(strsplit(x.names, break.by), function(x) return(paste(x[1:k], collapse = break.by)))
-
 
 
 #--> RUN
